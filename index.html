@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Creator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Adobe Clean', 'Helvetica Neue', Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b35 0%, #f7931e 50%, #ff6b35 100%);
+        }
+        
+        h1 {
+            color: #2c2c2c;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c2c2c;
+            font-size: 0.95rem;
+            letter-spacing: 0.01em;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.2s ease;
+            background-color: #fafbfc;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #ff6b35;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+        
+        .webhook-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            transition: all 0.2s ease;
+            background-color: #fafbfc;
+        }
+        
+        .webhook-input:focus {
+            outline: none;
+            border-color: #ff6b35;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+        
+        select.webhook-input {
+            cursor: pointer;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+            letter-spacing: 0.01em;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background: #c1c7cd;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        button:disabled::before {
+            display: none;
+        }
+        
+        .status {
+            margin-top: 24px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+            font-weight: 500;
+        }
+        
+        .success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #e7f3ff 0%, #b3d9ff 100%);
+            border: 1px solid #b3d9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .example h3 {
+            margin-top: 0;
+            color: #ff6b35;
+            font-weight: 600;
+        }
+        
+        .example ul {
+            margin: 12px 0;
+            padding-left: 20px;
+        }
+        
+        .example li {
+            margin-bottom: 6px;
+        }
+        
+        .toggle-container {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 6px;
+            margin-bottom: 24px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .toggle-option {
+            flex: 1;
+            text-align: center;
+            padding: 16px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .toggle-option.active {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+        
+        .toggle-option:not(.active) {
+            color: #6c757d;
+        }
+        
+        .toggle-option:not(.active):hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+        
+        .form-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .form-section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        small {
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin-top: 6px;
+            display: block;
+        }
+        
+        input[type="file"] {
+            padding: 12px;
+            border: 2px dashed #e1e5e9;
+            border-radius: 8px;
+            background: #fafbfc;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        input[type="file"]:hover {
+            border-color: #ff6b35;
+            background: #fff;
+        }
+        
+        input[type="file"]:focus {
+            outline: none;
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+            
+            .container {
+                padding: 24px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .toggle-option {
+                padding: 12px 8px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Story Creator</h1>
+        
+        <form id="storyForm">
+            <div class="form-group" style="display: none;">
+                <label for="webhookUrl">Webhook URL (from n8n):</label>
+                <input type="url" id="webhookUrl" class="webhook-input" 
+                       value="http://sj1010010250080.corp.adobe.com:3003/webhook/919a1a46-b892-46c7-8c88-88e4fe5f5914" required>
+            </div>
+
+            <div class="form-group">
+                <label for="reporterSelect">Reporter:</label>
+                <select id="reporterSelect" class="webhook-input" required>
+                    <option value="">Select a reporter...</option>
+                    <option value="janiza">Janiza Corrales</option>
+                    <option value="hrojas">Hans Rojas</option>
+                    <option value="yunningq">Yunning Qiu</option>
+                    <option value="sin">Maggie Sin</option>
+                    <option value="dingd">Dina Ding</option>
+                    <option value="abhijeetr">Abhijeet Raj</option>
+                    <option value="mkhiani">Mohit Khiani</option>
+                    <option value="dhaker">Babu Dhaker</option>
+                    <option value="unassigned">Other</option>
+                </select>
+            </div>
+
+            <div class="toggle-container">
+                <div class="toggle-option active" data-option="email">📧 Upload Email</div>
+                <div class="toggle-option" data-option="story">✍️ Story Description</div>
+            </div>
+
+            <div class="form-section active" id="emailSection">
+                <div class="form-group">
+                    <label for="emailUpload">Upload Email (.eml file):</label>
+                    <input type="file" id="emailUpload" accept=".eml" class="webhook-input">
+                    <small style="color: #666; display: block; margin-top: 5px;">Upload an .eml file to automatically extract email content</small>
+                </div>
+            </div>
+
+            <div class="form-section" id="storySection">
+                <div class="form-group">
+                    <label for="storyText">Story Description:</label>
+                    <textarea id="storyText" placeholder="Describe the feature, bug, or enhancement you want to create a story for...&#10;&#10;Example: Users need to be able to export their data to CSV format so that they can analyze it in Excel."></textarea>
+                    <small style="color: #666; display: block; margin-top: 5px;">Type your story description here</small>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn">Create Story</button>
+        </form>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        // Toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleOptions = document.querySelectorAll('.toggle-option');
+            const emailSection = document.getElementById('emailSection');
+            const storySection = document.getElementById('storySection');
+            
+            toggleOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove active class from all options
+                    toggleOptions.forEach(opt => opt.classList.remove('active'));
+                    // Add active class to clicked option
+                    this.classList.add('active');
+                    
+                    // Show/hide corresponding sections
+                    if (this.dataset.option === 'email') {
+                        emailSection.classList.add('active');
+                        storySection.classList.remove('active');
+                        // Clear story text when switching to email
+                        document.getElementById('storyText').value = '';
+                    } else {
+                        storySection.classList.add('active');
+                        emailSection.classList.remove('active');
+                        // Clear email upload when switching to story
+                        document.getElementById('emailUpload').value = '';
+                    }
+                });
+            });
+        });
+
+        document.getElementById('storyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const webhookUrl = document.getElementById('webhookUrl').value.trim();
+            const storyText = document.getElementById('storyText').value.trim();
+            const reporterUsername = document.getElementById('reporterSelect').value.trim();
+            const emailFile = document.getElementById('emailUpload').files[0];
+            const submitBtn = document.getElementById('submitBtn');
+            const status = document.getElementById('status');
+            
+            // Hardcoded project values for DMEWA
+            const projectId = '82407';
+            const projectKey = 'DMEWA';
+            
+            if (!webhookUrl || !reporterUsername) {
+                showStatus('Please select a reporter.', 'error');
+                return;
+            }
+            
+            // Check which section is active and validate accordingly
+            const emailSection = document.getElementById('emailSection');
+            const storySection = document.getElementById('storySection');
+            
+            if (emailSection.classList.contains('active')) {
+                if (!emailFile) {
+                    showStatus('Please upload an email file.', 'error');
+                    return;
+                }
+            } else if (storySection.classList.contains('active')) {
+                if (!storyText) {
+                    showStatus('Please provide a story description.', 'error');
+                    return;
+                }
+            }
+            
+            
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating Story...';
+            hideStatus();
+            
+            try {
+                let payload = {
+                    projectId: projectId,
+                    projectKey: projectKey,
+                    reporterUsername: reporterUsername
+                };
+                
+                if (emailFile) {
+                    // Parse email file and send email data
+                    const emailData = await parseEmailFile(emailFile);
+                    payload.email = emailData;
+                } else {
+                    // Send manual story text
+                    payload.text = storyText;
+                }
+                
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (response.ok) {
+                    showStatus('✅ Story created successfully! Check your JIRA project.', 'success');
+                    // Clear fields based on active section
+                    if (emailSection.classList.contains('active')) {
+                        document.getElementById('emailUpload').value = '';
+                    } else {
+                        document.getElementById('storyText').value = '';
+                    }
+                    document.getElementById('reporterSelect').value = '';
+                } else {
+                    const errorText = await response.text();
+                    showStatus(`❌ Error: ${response.status} - ${errorText}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Error: ${error.message}`, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create Story';
+            }
+        });
+        
+        async function parseEmailFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const emailContent = e.target.result;
+                        const emailData = parseEmlContent(emailContent);
+                        resolve(emailData);
+                    } catch (error) {
+                        reject(new Error('Failed to parse email file: ' + error.message));
+                    }
+                };
+                
+                reader.onerror = function() {
+                    reject(new Error('Failed to read email file'));
+                };
+                
+                reader.readAsText(file);
+            });
+        }
+        
+        function parseEmlContent(emailContent) {
+            const lines = emailContent.split('\n');
+            let subject = '';
+            let from = '';
+            let body = '';
+            let inBody = false;
+            let bodyStarted = false;
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                
+                if (line.startsWith('Subject:')) {
+                    subject = line.substring(8).trim();
+                } else if (line.startsWith('From:')) {
+                    from = line.substring(6).trim();
+                } else if (line.startsWith('Content-Type:') && line.includes('text/plain')) {
+                    // Look for the blank line that separates headers from body
+                    for (let j = i + 1; j < lines.length; j++) {
+                        if (lines[j].trim() === '') {
+                            bodyStarted = true;
+                            break;
+                        }
+                    }
+                } else if (bodyStarted && line !== '') {
+                    inBody = true;
+                }
+                
+                if (inBody) {
+                    body += line + '\n';
+                }
+            }
+            
+            // Clean up the body
+            body = body.trim();
+            
+            // If we couldn't parse the body properly, use the entire content after headers
+            if (!body) {
+                const headerEndIndex = emailContent.indexOf('\n\n');
+                if (headerEndIndex !== -1) {
+                    body = emailContent.substring(headerEndIndex + 2).trim();
+                }
+            }
+            
+            return {
+                subject: subject || 'No Subject',
+                body: body || 'No Content',
+                from: from || 'Unknown Sender'
+            };
+        }
+        
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+        }
+        
+        function hideStatus() {
+            document.getElementById('status').style.display = 'none';
+        }
+        
+        // Webhook URL is now hardcoded, no need for localStorage
+    </script>
+</body>
+</html>
